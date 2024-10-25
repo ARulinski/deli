@@ -1,0 +1,146 @@
+{% extends "routes/layout.html" %}
+
+{% block body %}
+<div class="container">
+    <!-- Prominent total display section -->
+    {% if document %}
+    <div class="total-display">
+        <p><strong>Total of "{{ column_name }}":</strong> {{ total_sum }}</p>
+    </div>
+    {% endif %}
+
+    <h2>Upload a PDF</h2>
+
+    <!-- Form for PDF upload -->
+    <form id="upload-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Drag-and-drop area -->
+        <div id="drop-area" class="drop-area">
+            <p>Drag & Drop PDF here or click to upload</p>
+        </div>
+        
+        <!-- Hidden file input for direct file selection -->
+        <input id="pdf-file-input" type="file" name="pdf_file" accept="application/pdf" style="display: none;" required />
+        
+        <!-- Calculate button to allow form submission through file input selection -->
+        <button type="submit" style="display: none;" id="submit-btn">Calculate</button>
+    </form>
+
+    <!-- Display document details if available -->
+    {% if document %}
+    <div class="document-info">
+        <p><strong>Uploaded PDF:</strong> {{ document.title }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    /* Main page container styling */
+    .container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 20px;
+        background-color: #fdfdfd;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        text-align: center;
+    }
+
+    /* Prominent total display styling */
+    .total-display {
+        background-color: #4caf50;
+        color: #fff;
+        font-size: 24px;
+        font-weight: bold;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Header styling */
+    h2 {
+        color: #333;
+        font-size: 26px;
+        margin-bottom: 20px;
+    }
+
+    /* Drag-and-drop area styling */
+    .drop-area {
+        width: 100%;
+        max-width: 600px;
+        height: 180px;
+        border: 3px dashed #bbb;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background-color: #fff;
+        color: #777;
+        font-size: 18px;
+        margin: 20px auto;
+        padding: 20px;
+        cursor: pointer;
+        transition: background-color 0.3s, border-color 0.3s;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Drag-over state */
+    .drop-area.dragover {
+        background-color: #e3f2fd;
+        border-color: #2196f3;
+        color: #2196f3;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Document information styling */
+    .document-info p {
+        font-size: 18px;
+        color: #555;
+    }
+
+    strong {
+        color: #333;
+    }
+</style>
+
+<script>
+    // JavaScript for drag-and-drop and form handling
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('pdf-file-input');
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Click event to trigger file input dialog
+    dropArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Change event to handle file selection
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            submitBtn.click();
+        }
+    });
+
+    // Drag events for the drop area
+    dropArea.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropArea.classList.add('dragover');
+    });
+
+    dropArea.addEventListener('dragleave', () => {
+        dropArea.classList.remove('dragover');
+    });
+
+    dropArea.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropArea.classList.remove('dragover');
+        if (event.dataTransfer.files.length > 0) {
+            fileInput.files = event.dataTransfer.files;
+            submitBtn.click();
+        }
+    });
+</script>
+{% endblock %}
