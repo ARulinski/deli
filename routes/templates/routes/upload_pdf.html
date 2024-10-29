@@ -2,107 +2,163 @@
 
 {% block body %}
 <div class="container">
-    <!-- Prominent total display section -->
     {% if document %}
     <div class="total-display">
-        <p><strong>Total of "{{ column_name }}":</strong> {{ total_sum }}</p>
+        <p><strong>Total for "{{ column_name }}":</strong> {{ total_sum }}</p>
     </div>
     {% endif %}
 
-    <h2>Upload a PDF</h2>
+    <h2>Upload Today's Final</h2>
 
-    <!-- Form for PDF upload -->
+    <!-- Upload form -->
     <form id="upload-form" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <!-- Drag-and-drop area -->
+        <!-- Drop area for drag-and-drop functionality -->
         <div id="drop-area" class="drop-area">
-            <p>Drag & Drop PDF here or click to upload</p>
+            <p><i class="fas fa-cloud-upload-alt"></i> Drag & Drop your final here or click to select</p>
+            <div class="icon-placeholder" id="icon-placeholder">📄</div>
         </div>
-        
-        <!-- Hidden file input for direct file selection -->
+
+        <!-- Hidden file input for selecting PDF directly -->
         <input id="pdf-file-input" type="file" name="pdf_file" accept="application/pdf" style="display: none;" required />
         
-        <!-- Calculate button to allow form submission through file input selection -->
-        <button type="submit" style="display: none;" id="submit-btn">Calculate</button>
     </form>
 
-    <!-- Display document details if available -->
+    <!-- Separate Delete Form -->
     {% if document %}
+    <form action="{% url 'delete_document' document.id %}" method="post" style="margin-top: 15px;">
+        {% csrf_token %}
+        <button type="submit" class="delete-btn">Clear</button>
+    </form>
     <div class="document-info">
-        <p><strong>Uploaded PDF:</strong> {{ document.title }}</p>
+        <p><strong>Uploaded:</strong> {{ document.title }}</p>
     </div>
     {% endif %}
 </div>
 
 <style>
-    /* Main page container styling */
+    /* Container styling */
     .container {
-        max-width: 700px;
-        margin: 40px auto;
-        padding: 20px;
-        background-color: #fdfdfd;
+        max-width: 500px;
+        margin: 50px auto;
+        padding: 30px;
+        background-color: #f9f9f9;
         border-radius: 12px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         text-align: center;
     }
 
-    /* Prominent total display styling */
+    /* Total display */
     .total-display {
-        background-color: #4caf50;
+        background-color: #3a7bd5;
         color: #fff;
-        font-size: 24px;
-        font-weight: bold;
-        padding: 20px;
+        padding: 15px;
         border-radius: 8px;
+        font-size: 1.2em;
+        font-weight: bold;
         margin-bottom: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    .total-display:hover {
+        transform: translateY(-2px);
     }
 
-    /* Header styling */
+    /* Heading */
     h2 {
         color: #333;
-        font-size: 26px;
+        font-size: 22px;
+        font-weight: 600;
         margin-bottom: 20px;
     }
 
-    /* Drag-and-drop area styling */
+    /* Drop area */
     .drop-area {
         width: 100%;
-        max-width: 600px;
-        height: 180px;
-        border: 3px dashed #bbb;
-        border-radius: 12px;
+        max-width: 500px;
+        height: 150px;
+        border: 2px dashed #b0c4de;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        text-align: center;
-        background-color: #fff;
-        color: #777;
-        font-size: 18px;
+        background-color: #e6efff;
+        color: #333;
+        font-size: 16px;
         margin: 20px auto;
-        padding: 20px;
         cursor: pointer;
-        transition: background-color 0.3s, border-color 0.3s;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        position: relative;
     }
 
-    /* Drag-over state */
     .drop-area.dragover {
-        background-color: #e3f2fd;
-        border-color: #2196f3;
-        color: #2196f3;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        background-color: #c8ddff;
+        border-color: #3a7bd5;
     }
 
-    /* Document information styling */
+    /* Document icon animation */
+    .icon-placeholder {
+        font-size: 40px;
+        position: absolute;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .drop-area.dragover .icon-placeholder {
+        opacity: 1;
+        animation: bounce 1.5s infinite;
+    }
+
+    /* Bounce animation */
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    /* Button styling */
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .button-group button,
+    .delete-btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .button-group button {
+        background-color: #3a7bd5;
+        color: white;
+    }
+    .button-group button:hover {
+        background-color: #2a5b95;
+    }
+
+    .delete-btn {
+        background-color: #d9534f;
+        color: white;
+    }
+    .delete-btn:hover {
+        background-color: #c9302c;
+    }
+
+    /* Document info styling */
     .document-info p {
-        font-size: 18px;
+        font-size: 1em;
         color: #555;
+        margin-top: 20px;
     }
 
     strong {
-        color: #333;
+        color: #222;
     }
 </style>
 
@@ -110,28 +166,30 @@
     // JavaScript for drag-and-drop and form handling
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('pdf-file-input');
-    const submitBtn = document.getElementById('submit-btn');
+    const iconPlaceholder = document.getElementById('icon-placeholder');
 
-    // Click event to trigger file input dialog
-    dropArea.addEventListener('click', () => {
+    function triggerUpload() {
         fileInput.click();
-    });
+    }
 
-    // Change event to handle file selection
+    dropArea.addEventListener('click', triggerUpload);
+
     fileInput.addEventListener('change', () => {
         if (fileInput.files.length > 0) {
-            submitBtn.click();
+            dropArea.innerHTML = "<p>File ready! Uploading...</p>";
+            document.getElementById('upload-form').submit();
         }
     });
 
-    // Drag events for the drop area
     dropArea.addEventListener('dragover', (event) => {
         event.preventDefault();
         dropArea.classList.add('dragover');
+        iconPlaceholder.style.opacity = 1;
     });
 
     dropArea.addEventListener('dragleave', () => {
         dropArea.classList.remove('dragover');
+        iconPlaceholder.style.opacity = 0;
     });
 
     dropArea.addEventListener('drop', (event) => {
@@ -139,7 +197,8 @@
         dropArea.classList.remove('dragover');
         if (event.dataTransfer.files.length > 0) {
             fileInput.files = event.dataTransfer.files;
-            submitBtn.click();
+            dropArea.innerHTML = "<p>File uploaded! Calculating...</p>";
+            document.getElementById('upload-form').submit();
         }
     });
 </script>

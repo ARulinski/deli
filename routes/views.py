@@ -1,8 +1,9 @@
 import os
 import pdfplumber
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.conf import settings
 from .models import Document
+from django.shortcuts import redirect, get_object_or_404
 
 def upload_pdf(request):
     if request.method == 'POST' and 'pdf_file' in request.FILES:
@@ -13,7 +14,7 @@ def upload_pdf(request):
         document.pdf.save(pdf_file.name, pdf_file, save=True)
 
         # Initialize the total sum and column name variables
-        total_sum = 0.0  # Use float to handle decimal values accurately
+        total_sum = 0.0 
         column_name = None  # To store the name of the third column from the end
 
         # Get the file path of the uploaded PDF
@@ -62,3 +63,8 @@ def upload_pdf(request):
         })
 
     return render(request, 'routes/upload_pdf.html')
+
+def delete_document(request, document_id):
+    document = get_object_or_404(Document, id=document_id)
+    document.delete()  # Deletes the document instance and file
+    return redirect('upload_pdf')  # Redirect back to the upload page
